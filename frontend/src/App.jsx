@@ -3,81 +3,185 @@ import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
 import ChatWindow from "./components/ChatWindow.jsx";
 import AnalyticsDashboard from "./components/AnalyticsDashboard.jsx";
+import VoiceAgent from "./components/VoiceAgent.jsx";
 
 export default function App() {
   const sessionId = useMemo(() => uuidv4(), []);
-  const [view, setView] = useState("chat"); // chat | dashboard
+  const [view, setView] = useState("chat");
 
   return (
-    <div 
+    <div
       className="min-h-screen text-[#e2e8f0]"
       style={{
-        background: `radial-gradient(ellipse at 20% 50%, rgba(56,189,248,0.06) 0%, transparent 50%),
-                     radial-gradient(ellipse at 80% 20%, rgba(129,140,248,0.06) 0%, transparent 50%),
-                     #050810`
+        background: `
+          radial-gradient(ellipse at 15% 40%, rgba(99,102,241,0.08) 0%, transparent 45%),
+          radial-gradient(ellipse at 85% 15%, rgba(34,211,238,0.07) 0%, transparent 45%),
+          radial-gradient(ellipse at 50% 90%, rgba(99,102,241,0.05) 0%, transparent 50%),
+          #030712
+        `,
+        fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/[0.03] border-b border-white/[0.06]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <span className="text-cyan-400 text-xl font-display">✦</span>
+      <div style={{
+        height: 2,
+        background: "linear-gradient(90deg, transparent, #6366f1, #22d3ee, #6366f1, transparent)",
+        backgroundSize: "200% 100%",
+        animation: "shimmer 3s linear infinite",
+      }} />
+
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 4px; }
+      `}</style>
+
+      <header style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+        backdropFilter: "blur(20px)",
+        background: "rgba(3,7,18,0.8)",
+        borderBottom: "1px solid rgba(99,102,241,0.15)",
+      }}>
+        <div style={{
+          maxWidth: 1100,
+          margin: "0 auto",
+          padding: "14px 24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "linear-gradient(135deg, #6366f1, #22d3ee)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 18,
+              boxShadow: "0 0 20px rgba(99,102,241,0.4)",
+            }}>
+              *
+            </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-white font-display">QueryAI</h1>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <div style={{
+                fontSize: 18,
+                fontWeight: 800,
+                letterSpacing: "-0.03em",
+                background: "linear-gradient(135deg, #e2e8f0 0%, #22d3ee 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}>
+                QueryAI
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 1 }}>
+                <span style={{
+                  display: "inline-block",
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "#10b981",
+                  boxShadow: "0 0 6px #10b981",
+                  animation: "float 2s ease-in-out infinite",
+                }} />
+                <span style={{ fontSize: 11, color: "rgba(148,163,184,0.7)", fontWeight: 500, letterSpacing: "0.04em" }}>
+                  LIVE
                 </span>
-                <span className="text-xs text-slate-400 font-medium tracking-wide">● Live</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-white/[0.03] p-1 rounded-full border border-white/[0.05]">
-            <button
-              onClick={() => setView("chat")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                view === "chat"
-                  ? "bg-white/[0.08] text-cyan-400 ring-1 ring-cyan-500/30 glow-cyan"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              Chat
-            </button>
-            <button
-              onClick={() => setView("dashboard")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                view === "dashboard"
-                  ? "bg-white/[0.08] text-cyan-400 ring-1 ring-cyan-500/30 glow-cyan"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              Analytics
-            </button>
+          <div style={{
+            display: "flex",
+            gap: 4,
+            padding: 4,
+            background: "rgba(255,255,255,0.03)",
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}>
+            {[
+              { id: "chat", label: "Chat", icon: "💬" },
+              { id: "dashboard", label: "Analytics", icon: "📊" },
+            ].map(({ id, label, icon }) => (
+              <button
+                key={id}
+                onClick={() => setView(id)}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 10,
+                  border: "none",
+                  background: view === id
+                    ? "rgba(99,102,241,0.2)"
+                    : "transparent",
+                  color: view === id ? "#818cf8" : "rgba(148,163,184,0.7)",
+                  fontWeight: view === id ? 600 : 400,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  outline: view === id ? "1px solid rgba(99,102,241,0.3)" : "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>{icon}</span> {label}
+              </button>
+            ))}
           </div>
         </div>
-        <div className="h-[1px] w-full bg-gradient-to-r from-cyan-500/0 via-cyan-500/50 to-violet-500/0 opacity-50"></div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px" }}>
         <AnimatePresence mode="wait">
           {view === "chat" ? (
             <motion.div
               key="chat"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             >
+              <VoiceAgent />
+
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                marginBottom: 28,
+              }}>
+                <div style={{ flex: 1, height: 1, background: "rgba(99,102,241,0.15)" }} />
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "rgba(148,163,184,0.5)",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}>
+                  or type below
+                </span>
+                <div style={{ flex: 1, height: 1, background: "rgba(34,211,238,0.15)" }} />
+              </div>
+
               <ChatWindow sessionId={sessionId} />
             </motion.div>
           ) : (
             <motion.div
               key="dash"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             >
               <AnalyticsDashboard />
             </motion.div>
@@ -87,4 +191,3 @@ export default function App() {
     </div>
   );
 }
-
