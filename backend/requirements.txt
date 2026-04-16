@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+langchain
+langchain-google-genai
+langchain-community
+transformers
+torch
+sentence-transformers
+faiss-cpu
+sqlalchemy
+pydantic
+python-dotenv
+google-generativeai
