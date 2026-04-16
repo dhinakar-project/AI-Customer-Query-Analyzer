@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import os
-
 from dotenv import load_dotenv
+load_dotenv()
+
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,9 +11,6 @@ from database import Base, engine
 from routes.chat import router as chat_router
 from routes.analytics import router as analytics_router
 from services.sentiment import _get_pipeline  # intentional: warm model on startup
-
-
-load_dotenv()
 
 app = FastAPI(title="AI Customer Query Analyzer", version="1.0.0")
 

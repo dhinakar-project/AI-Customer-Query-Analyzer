@@ -61,8 +61,10 @@ pip install -r requirements.txt
 
 Create `.env`:
 
-```bash
-copy .env.example .env
+```powershell
+# PowerShell (run from `backend/`)
+# Only create `.env` if it doesn't already exist, so you don't overwrite your real key.
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
 Edit `backend/.env` and set:

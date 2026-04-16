@@ -3,8 +3,7 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from langchain_classic.chains import ConversationChain
-from langchain_core.prompts import PromptTemplate
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -34,7 +33,8 @@ def _get_llm() -> Optional[ChatGoogleGenerativeAI]:
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
         return None
-    return ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.4)
+    # `gemini-1.5-flash` is not available in the current model list for this API environment.
+    return ChatGoogleGenerativeAI(model="gemini-flash-latest", temperature=0.4)
 
 
 class _RagLite:
@@ -62,6 +62,28 @@ class _RagLite:
 
 
 _rag = _RagLite()
+
+
+def _extract_text(content) -> str:
+    """
+    Gemini may return structured `content` (e.g. list of text parts).
+    Normalize it to plain text for downstream parsing.
+    """
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, dict):
+                t = item.get("text") or item.get("content") or ""
+                if t:
+                    parts.append(str(t))
+            else:
+                parts.append(str(item))
+        return "".join(parts).strip()
+    return str(content).strip()
 
 
 def _pick_prompt(message: str, prompts: list[str]) -> str:
@@ -163,16 +185,32 @@ async def generate_response(
         return {"response": resp, "generation_mode": "fallback", "warning": _fallback_warning(None)}
 
     memory = get_session_memory(session_id, k=5)
-    prompt = PromptTemplate(
-        input_variables=["history", "input"],
-        template=SYSTEM_TEMPLATE,
-    )
-    chain = ConversationChain(llm=llm, memory=memory, prompt=prompt, verbose=False)
 
     llm_error: Exception | None = None
     try:
-        out = await chain.apredict(input=enriched_input)
-        resp = out.strip()
+        history_messages = memory.chat_memory.messages
+        messages = [
+            SystemMessage(
+                content=(
+                    "You are a helpful, empathetic customer support agent for a retail/tech company.\n"
+                    "If sentiment is NEGATIVE, start with empathy and apologize.\n"
+                    "If sentiment is POSITIVE, match their energy.\n"
+                    "Be concise (2-4 sentences max). Always offer a next step or resolution.\n"
+                    "Do not make up order numbers or policies."
+                )
+            )
+        ] + history_messages + [HumanMessage(content=enriched_input)]
+
+        result = await llm.ainvoke(messages)
+        out = _extract_text(getattr(result, "content", None)).strip()
+        if not out:
+            raise ValueError("Gemini returned an empty response.")
+
+        # Preserve chat history for this session.
+        memory.chat_memory.add_user_message(enriched_input)
+        memory.chat_memory.add_ai_message(out)
+
+        resp = out
         mode = "llm"
         warning = None
     except Exception as exc:

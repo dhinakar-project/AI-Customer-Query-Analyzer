@@ -4,9 +4,14 @@ import MessageBubble from "./MessageBubble.jsx";
 
 function Spinner() {
   return (
-    <div className="flex items-center gap-2 text-sm text-slate-300">
-      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-500 border-t-slate-200" />
-      Thinking…
+    <div className="flex gap-1.5 items-center px-4 py-3">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce"
+          style={{ animationDelay: `${i * 0.15}s` }}
+        />
+      ))}
     </div>
   );
 }
@@ -78,15 +83,23 @@ export default function ChatWindow({ sessionId }) {
   }
 
   return (
-    <div className="grid gap-4">
-      <div className="rounded-2xl bg-panel/60 ring-1 ring-slate-800">
-        <div className="max-h-[68vh] space-y-3 overflow-y-auto p-4">
+    <div className="grid gap-6">
+      <div className="relative rounded-3xl bg-white/[0.03] backdrop-blur-xl border border-white/[0.07] overflow-hidden shadow-2xl shadow-black/20">
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-50"
+          style={{
+            backgroundImage: `linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px)`,
+            backgroundSize: '32px 32px'
+          }}
+        />
+        <div className="h-[75vh] space-y-4 overflow-y-auto p-6 scroll-smooth relative z-10">
           {messages.map((m) => (
             <MessageBubble key={m.id} role={m.role} text={m.text} meta={m.meta} />
           ))}
           {loading ? (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-panel px-4 py-3 ring-1 ring-slate-700">
+              <div className="rounded-2xl rounded-tl-sm bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm">
                 <Spinner />
               </div>
             </div>
@@ -107,7 +120,7 @@ export default function ChatWindow({ sessionId }) {
         </div>
       ) : null}
 
-      <div className="flex items-end gap-3 rounded-2xl bg-panel/60 p-3 ring-1 ring-slate-800">
+      <div className="flex items-center gap-3 bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-3 shadow-[0_-1px_0_rgba(255,255,255,0.05)] sticky bottom-4 z-20">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -118,14 +131,14 @@ export default function ChatWindow({ sessionId }) {
             }
           }}
           placeholder="Type a customer query… (Enter to send, Shift+Enter for newline)"
-          className="min-h-[52px] flex-1 resize-none rounded-xl bg-slate-900/40 px-4 py-3 text-sm text-slate-100 ring-1 ring-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+          className="min-h-[52px] flex-1 resize-none bg-transparent px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
         />
         <button
           onClick={onSend}
           disabled={loading || !input.trim()}
-          className="h-[52px] rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-[52px] w-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-white transition-all hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Send
+          <span className="text-xl">→</span>
         </button>
       </div>
 

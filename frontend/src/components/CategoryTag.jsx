@@ -3,7 +3,7 @@ import React from "react";
 export default function CategoryTag({ category }) {
   if (!category) return null;
   return (
-    <span className="inline-flex items-center rounded-full bg-indigo-600/20 px-2 py-0.5 text-xs font-medium text-indigo-200 ring-1 ring-indigo-500/30">
+    <span className="inline-flex items-center rounded-r-full rounded-l-md bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium tracking-wide text-indigo-300 border border-white/[0.05] border-l-[3px] border-l-indigo-500 backdrop-blur-md">
       {category}
     </span>
   );
